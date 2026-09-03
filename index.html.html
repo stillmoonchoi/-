@@ -1,0 +1,424 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 어순 연습 퀴즈 - 팬덤 문화</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f7f9fc;
+            --card-bg: #ffffff;
+            --primary-color: #4a90e2;
+            --primary-hover: #357abd;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --text-color: #333333;
+            --border-color: #e1e8ed;
+        }
+
+        body {
+            font-family: 'Nanum Gothic', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            background-color: var(--border-color);
+            border-radius: 10px;
+            height: 10px;
+            width: 100%;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress {
+            background-color: var(--primary-color);
+            height: 100%;
+            width: 10%;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-box {
+            margin-bottom: 25px;
+        }
+
+        .question-number {
+            font-size: 14px;
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .target-sentence-box {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 8px;
+            min-height: 50px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 15px;
+            border: 2px dashed var(--border-color);
+        }
+
+        .word-bank {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-height: 60px;
+            padding: 10px 0;
+        }
+
+        .word-btn {
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            font-family: 'Nanum Gothic', sans-serif;
+        }
+
+        .word-btn:hover {
+            background-color: #ebf3fd;
+            border-color: var(--primary-color);
+        }
+
+        .word-btn.selected {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button.action-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-family: 'Nanum Gothic', sans-serif;
+        }
+
+        button.action-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button.secondary-btn {
+            background-color: #95a5a6;
+        }
+        button.secondary-btn:hover {
+            background-color: #7f8c8d;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.correct {
+            background-color: #e8f8f5;
+            color: var(--success-color);
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background-color: #ffd2d2;
+            color: var(--error-color);
+            display: block;
+        }
+
+        .result-screen {
+            text-align: center;
+            display: none;
+        }
+
+        .result-screen h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .result-score {
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--success-color);
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>한국어 어순 연습 퀴즈</h1>
+        <p>제시된 지문("팬덤 문화")의 문장을 어휘 단위로 나누어 올바른 어순으로 재배열하는 퀴즈입니다.</p>
+    </header>
+
+    <div class="progress-bar">
+        <div class="progress" id="progress-bar"></div>
+    </div>
+
+    <div id="quiz-container">
+        <div class="quiz-box">
+            <div class="question-number" id="q-num">문제 1 / 10</div>
+            <p><strong>아래 단어들을 올바른 순서대로 클릭하여 문장을 완성하세요.</strong></p>
+            
+            <div class="target-sentence-box" id="selected-words-box"></div>
+
+            <div class="word-bank" id="word-bank"></div>
+
+            <div class="feedback" id="feedback-msg"></div>
+
+            <div class="btn-group">
+                <button class="action-btn" id="check-btn" onclick="checkAnswer()">정답 확인</button>
+                <button class="action-btn secondary-btn" onclick="resetCurrentQuiz()">다시 쓰기</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="result-screen" id="result-screen">
+        <h2>모든 문제를 풀었습니다!</h2>
+        <p>나의 최종 점수</p>
+        <div class="result-score" id="final-score">0 / 10</div>
+        <button class="action-btn" onclick="restartQuiz()">처음부터 다시 풀기</button>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        {
+            sentence: "팬덤이란 어떤 대상의 팬들이 모인 집단을 가리키는 말이다.",
+            words: ["팬덤이란", "어떤", "대상의", "팬들이", "모인", "집단을", "가리키는", "말이다."]
+        },
+        {
+            sentence: "정보 기술이 발달하고 대중문화가 확산되면서 새로운 바람이 불고 있다.",
+            words: ["정보", "기술이", "발달하고", "대중문화가", "확산되면서", "새로운", "바람이", "불고", "있다."]
+        },
+        {
+            sentence: "같은 스타를 좋아한다는 이유만으로 유대감이 형성된다.",
+            words: ["같은", "스타를", "좋아한다는", "이유만으로", "유대감이", "형성된다."]
+        },
+        {
+            sentence: "이러한 팬덤이 새로운 신뢰 관계를 형성하고 있다.",
+            words: ["이러한", "팬덤이", "새로운", "신뢰", "관계를", "형성하고", "있다."]
+        },
+        {
+            sentence: "그 대표적인 예로 온라인을 통해서 스타를 후원하는 상품을 판매한다.",
+            words: ["그", "대표적인", "예로", "온라인을", "통해서", "스타를", "후원하는", "상품을", "판매한다."]
+        },
+        {
+            sentence: "팬덤은 스타를 응원하는 상품을 자체 개발하고 홍보에도 참여한다.",
+            words: ["팬덤은", "스타를", "응원하는", "상품을", "자체", "개발하고", "홍보에도", "참여한다."]
+        },
+        {
+            sentence: "스타를 바라보던 입장장에서 유행을 주도하는 능동적인 주체로 바뀌고 있다.",
+            words: ["스타를", "바라보던", "입장에서", "유행을", "주도하는", "능동적인", "주체로", "바뀌고", "있다."]
+        },
+        {
+            sentence: "스타들은 팬들에게 실시간으로 행적을 알리기도 한다.",
+            words: ["스타들은", "팬들에게", "실시간으로", "행적을", "알리기도", "한다."]
+        },
+        {
+            sentence: "스포츠 팬덤으로 대표되는 것은 야구팬들이다.",
+            words: ["스포츠", "팬덤으로", "대표되는", "것은", "야구팬들이다."]
+        },
+        {
+            sentence: "다양한 분야에서 팬덤 문화가 널리 퍼지고 있다.",
+            words: ["다양한", "분야에서", "팬덤", "문화가", "널리", "퍼지고", "있다."]
+        }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    let userSelectedWords = [];
+    let currentShuffledWords = [];
+
+    const qNumEl = document.getElementById('q-num');
+    const selectedWordsBox = document.getElementById('selected-words-box');
+    const wordBankEl = document.getElementById('word-bank');
+    const feedbackEl = document.getElementById('feedback-msg');
+    const progressBar = document.getElementById('progress-bar');
+    const quizContainer = document.getElementById('quiz-container');
+    const resultScreen = document.getElementById('result-screen');
+    const finalScoreEl = document.getElementById('final-score');
+
+    // 원본 데이터 가공 (각 단어를 객체 형태로 변환하여 관리)
+    const formattedQuizData = quizData.map(q => ({
+        sentence: q.sentence,
+        rawWords: q.words,
+        words: q.words.map(text => ({ text: text, used: false })),
+        solved: false
+    }));
+
+    function shuffle(array) {
+        let arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        if (arr.map(x => x.text).join('') === array.map(x => x.text).join('')) {
+            return shuffle(array);
+        }
+        return arr;
+    }
+
+    function loadQuiz() {
+        userSelectedWords = [];
+        feedbackEl.className = 'feedback';
+        feedbackEl.textContent = '';
+        
+        qNumEl.textContent = `문제 ${currentIdx + 1} / ${formattedQuizData.length}`;
+        progressBar.style.width = `${((currentIdx + 1) / formattedQuizData.length) * 100}%`;
+
+        // 매번 문제를 로드할 때마다 used 상태를 초기화하고 섞음
+        formattedQuizData[currentIdx].words.forEach(w => w.used = false);
+        currentShuffledWords = shuffle(formattedQuizData[currentIdx].words);
+        renderWords();
+    }
+
+    function renderWords() {
+        selectedWordsBox.innerHTML = '';
+        userSelectedWords.forEach((item, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'word-btn selected';
+            btn.textContent = item.text;
+            btn.onclick = () => deselectWord(index);
+            selectedWordsBox.appendChild(btn);
+        });
+
+        wordBankEl.innerHTML = '';
+        currentShuffledWords.forEach((item, index) => {
+            if (!item.used) {
+                const btn = document.createElement('button');
+                btn.className = 'word-btn';
+                btn.textContent = item.text;
+                btn.onclick = () => selectWord(index);
+                wordBankEl.appendChild(btn);
+            }
+        });
+    }
+
+    function selectWord(index) {
+        userSelectedWords.push({
+            text: currentShuffledWords[index].text,
+            origIndex: index
+        });
+        currentShuffledWords[index].used = true;
+        renderWords();
+    }
+
+    function deselectWord(index) {
+        const item = userSelectedWords[index];
+        currentShuffledWords[item.origIndex].used = false;
+        userSelectedWords.splice(index, 1);
+        renderWords();
+    }
+
+    function resetCurrentQuiz() {
+        currentShuffledWords.forEach(w => w.used = false);
+        userSelectedWords = [];
+        feedbackEl.className = 'feedback';
+        renderWords();
+    }
+
+    function checkAnswer() {
+        const correctWords = formattedQuizData[currentIdx].rawWords;
+        const userWords = userSelectedWords.map(w => w.text);
+
+        if (userWords.length === 0) {
+            feedbackEl.className = 'feedback incorrect';
+            feedbackEl.textContent = '단어를 선택하여 문장을 완성해 주세요.';
+            return;
+        }
+
+        const isCorrect = JSON.stringify(correctWords) === JSON.stringify(userWords);
+
+        if (isCorrect) {
+            feedbackEl.className = 'feedback correct';
+            feedbackEl.textContent = '정답입니다! 훌륭합니다.';
+            if (!formattedQuizData[currentIdx].solved) {
+                score++;
+                formattedQuizData[currentIdx].solved = true;
+            }
+            document.getElementById('check-btn').textContent = '다음 문제';
+            document.getElementById('check-btn').onclick = nextQuiz;
+        } else {
+            feedbackEl.className = 'feedback incorrect';
+            feedbackEl.textContent = '틀렸습니다. 어순을 다시 확인해 보세요!';
+        }
+    }
+
+    function nextQuiz() {
+        currentIdx++;
+        document.getElementById('check-btn').textContent = '정답 확인';
+        document.getElementById('check-btn').onclick = checkAnswer;
+
+        if (currentIdx < formattedQuizData.length) {
+            loadQuiz();
+        } else {
+            quizContainer.style.display = 'none';
+            resultScreen.style.display = 'block';
+            finalScoreEl.textContent = `${score} / ${formattedQuizData.length}`;
+        }
+    }
+
+    function restartQuiz() {
+        currentIdx = 0;
+        score = 0;
+        formattedQuizData.forEach(q => q.solved = false);
+        quizContainer.style.display = 'block';
+        resultScreen.style.display = 'none';
+        loadQuiz();
+    }
+
+    loadQuiz();
+</script>
+
+</body>
+</html>
